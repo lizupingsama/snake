@@ -1,0 +1,213 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable:6031)
+#pragma warning(disable:6385)
+#pragma warning(disable:6054)
+#pragma warning(disable:28182)
+#pragma warning(disable:6011)
+#pragma warning(disable:6308)
+#pragma warning(disable:28183)
+#pragma warning(disable:6387)
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<time.h>
+#include<graphics.h>
+#include<conio.h>
+#include<mmsystem.h>
+#pragma comment(lib."win.lib")
+#define SNAKE_NUM 500//蛇的最大节数
+#define LeftWall 0
+#define RightWall 700
+#define UpWall 0
+#define DownWall 500
+int food_x;
+int food_y;
+enum direction
+{
+	UP,DOWN,LEFT,RIGHT
+};
+
+struct Coor
+{
+	float x;
+	float y;
+};
+struct Snake
+{
+	int size;//蛇的节数
+	int direction;//蛇的方向
+	int speed;//蛇的速度
+	struct Coor coor[SNAKE_NUM];
+}snake;
+
+int main();
+void food();
+void GameInit()//游戏初始化
+{
+	initgraph(RightWall,DownWall);//初始化窗口
+	snake.size = 3;//蛇的初始化长度
+	snake.direction = RIGHT;
+	snake.speed = 10;
+	for (int i = 0; i <= snake.size; i++)
+	{
+		snake.coor[i].x = 40-10*i;
+		snake.coor[i].y = 10;
+	}
+}
+
+void music()
+{	
+	
+	mciSendString("close wjz", NULL, 0, NULL);
+	mciSendString("open wjz.MP3 alias wjz", NULL, 0, NULL);
+	char vo[20];
+	char res[260];
+	char file1[100] = "setaudio wjz.mp3 volume to "; // to后面一定要有空格，不然会报错
+	mciSendString("status wjz.mp3 volume", res, 260, NULL);
+	int volume = 0;
+	volume = atoi(res); // 转化语句
+	volume += 400;
+	itoa(volume, vo, 10); //转化语句
+	strcat(file1, vo); // 将vo接在file1后面
+	mciSendString(file1, NULL, 0, NULL); // 设定成功
+	mciSendString("play wjz", NULL, 0, NULL);
+
+	
+}
+void GameDraw()
+{
+	BeginBatchDraw();//双缓冲防止闪屏
+	setbkcolor(RGB(28, 115, 119));//设置背景颜色
+	cleardevice();
+	{
+		setfillcolor(RGB(255, 63, 63));
+		fillrectangle(0, 0, 700, 5);//绘制顶墙
+		fillrectangle(695, 0, 700, 500);//绘制右墙
+		fillrectangle(0, 495, 700, 500);//绘制底墙
+		fillrectangle(0, 0, 5, 500);//绘制左墙
+	}
+	setfillcolor(RGB(56, 23, 57));
+	for (int i = 0; i < snake.size; i++)//绘制蛇
+	{
+		solidcircle(snake.coor[i].x, snake.coor[i].y, 5);
+	}
+	setfillcolor(RGB(200, 26, 22));//食物的颜色
+	solidcircle(food_x, food_y, 5);//绘制食物
+	EndBatchDraw();
+		setfillcolor(RGB(200, 26, 22));//食物的颜色
+		solidcircle(food_x, food_y, 5);
+	
+	EndBatchDraw();
+	Sleep(125);
+}
+
+void SnakeMove()//蛇的移动
+{
+	for (int i = snake.size-1; i >0 ; i--)//身体跟着头移动
+	{
+		snake.coor[i].x = snake.coor[i - 1].x;
+		snake.coor[i].y = snake.coor[i - 1].y;
+	}
+	
+	switch (snake.direction)
+	{
+	case UP:snake.coor[0].y-= snake.speed;
+		break;
+	case DOWN:snake.coor[0].y+= snake.speed;
+		break;
+	case LEFT:snake.coor[0].x-= snake.speed;
+		break;
+	case RIGHT:snake.coor[0].x+= snake.speed;
+		break;
+	}
+
+	if (snake.coor[0].x < LeftWall+10 || snake.coor[0].x > RightWall-10 || snake.coor[0].y < UpWall+10 || snake.coor[0].y > DownWall-10)
+		//判断是否撞墙
+	{
+		GameDraw();
+		mciSendString("close cxk", NULL, 0, NULL);
+		mciSendString("open cxk.MP3 alias cxk", NULL, 0, NULL);
+		mciSendString("play cxk", NULL, 0, NULL);
+		printf("游戏结束");
+		_getch();
+		main();
+	}
+	if (snake.coor[0].x == food_x && snake.coor[0].y == food_y)//判断吃到食物
+	{
+		snake.size++;
+		music();
+		food();
+	}
+	for (int i = 1; i < snake.size; i++)//判断是否吃到自己
+	{
+		if (snake.coor[0].x == snake.coor[i].x && snake.coor[0].y == snake.coor[i].y)
+		{
+			GameDraw();
+			mciSendString("close cxk", NULL, 0, NULL);
+			mciSendString("open cxk.MP3 alias cxk", NULL, 0, NULL);
+			mciSendString("play cxk", NULL, 0, NULL);
+			printf("游戏结束");
+			_getch();
+			main();
+		}
+	}
+}
+
+void KeyControl()
+{
+	//72 80 75 77上下左右键值
+	if (_kbhit())
+	{//判断是否有按键，如果有则返回TRUE
+		switch (_getch())
+		{
+		case 'w':
+		case'W':
+		case 72:
+			if(snake.direction!=DOWN&&snake.direction!=UP)
+			snake.direction = UP;
+			break;
+		case 's':
+		case'S':
+		case 80:
+			if (snake.direction != UP && snake.direction != DOWN)
+			snake.direction = DOWN;
+			break;
+		case 'a':
+		case'A':
+		case 75:
+			if (snake.direction != RIGHT && snake.direction != LEFT)
+			snake.direction = LEFT;
+			break;
+		case 'd':
+		case'D':
+		case 77:
+			if (snake.direction != LEFT && snake.direction != RIGHT)
+			snake.direction = RIGHT;
+			break;
+		}
+	}
+}
+void food()
+{
+	srand((unsigned)time(NULL));
+	 food_x = (1 + rand() % 69) * 10;
+	 food_y = (1 + rand() % 49) * 10;
+}
+
+int main()
+{
+	GameInit();
+	food();
+	GameDraw(); 
+	printf("按任意键开始\n");
+	_getch();
+	mciSendString("close bgm", NULL, 0, NULL);
+	mciSendString("open bgm.MP3 alias bgm", NULL, 0, NULL);
+	mciSendString("play bgm repeat", NULL, 0, NULL);
+	while (1)
+	{
+		SnakeMove();
+		GameDraw();
+		KeyControl();
+	}
+}
