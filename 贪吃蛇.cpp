@@ -57,28 +57,20 @@ void GameInit()//游戏初始化
 
 void music()
 {	
-	
 	mciSendString("close wjz", NULL, 0, NULL);
 	mciSendString("open wjz.MP3 alias wjz", NULL, 0, NULL);
-	char vo[20];
-	char res[260];
-	char file1[100] = "setaudio wjz.mp3 volume to "; // to后面一定要有空格，不然会报错
-	mciSendString("status wjz.mp3 volume", res, 260, NULL);
-	int volume = 0;
-	volume = atoi(res); // 转化语句
-	volume += 400;
-	itoa(volume, vo, 10); //转化语句
-	strcat(file1, vo); // 将vo接在file1后面
-	mciSendString(file1, NULL, 0, NULL); // 设定成功
 	mciSendString("play wjz", NULL, 0, NULL);
-
-	
 }
+
 void GameDraw()
 {
 	BeginBatchDraw();//双缓冲防止闪屏
-	setbkcolor(RGB(28, 115, 119));//设置背景颜色
+	FlushBatchDraw();
+	IMAGE img,img2;
+	loadimage(&img, "head.png", 10, 10);
+	loadimage(&img2, "ground2.jpeg", 700, 500);
 	cleardevice();
+	putimage(0, 0, &img2);
 	{
 		setfillcolor(RGB(255, 63, 63));
 		fillrectangle(0, 0, 700, 5);//绘制顶墙
@@ -89,12 +81,15 @@ void GameDraw()
 	setfillcolor(RGB(56, 23, 57));
 	for (int i = 0; i < snake.size; i++)//绘制蛇
 	{
-		solidcircle(snake.coor[i].x, snake.coor[i].y, 5);
+		if (i == 0)
+			putimage(snake.coor[i].x-5, snake.coor[i].y-5,&img);
+		else
+		{
+			setfillcolor(RGB(1 + rand() % 300, 1 + rand() % 300, 1 + rand() % 300));
+			solidcircle(snake.coor[i].x, snake.coor[i].y, 5);
+		}
 	}
-	setfillcolor(RGB(200, 26, 22));//食物的颜色
-	solidcircle(food_x, food_y, 5);//绘制食物
-	EndBatchDraw();
-		setfillcolor(RGB(200, 26, 22));//食物的颜色
+		setfillcolor(RGB(1+rand()%300, 1 + rand() % 300, 1 + rand() % 300));//食物的颜色
 		solidcircle(food_x, food_y, 5);
 	
 	EndBatchDraw();
@@ -187,6 +182,7 @@ void KeyControl()
 		}
 	}
 }
+
 void food()
 {
 	srand((unsigned)time(NULL));

@@ -19,4 +19,23 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="bgm.mp3">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="cxk.MP3">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="wjz.MP3">
+      <Filter>资源文件</Filter>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ground2.jpeg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="head.png">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

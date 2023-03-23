@@ -130,6 +130,15 @@
   <ItemGroup>
     <ClCompile Include="贪吃蛇.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="bgm.mp3" />
+    <Media Include="cxk.MP3" />
+    <Media Include="wjz.MP3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ground2.jpeg" />
+    <Image Include="head.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
