@@ -20,21 +20,28 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Media Include="bgm.mp3">
-      <Filter>资源文件</Filter>
-    </Media>
-    <Media Include="cxk.MP3">
-      <Filter>资源文件</Filter>
-    </Media>
-    <Media Include="wjz.MP3">
-      <Filter>资源文件</Filter>
-    </Media>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="ground2.jpeg">
+    <ResourceCompile Include="贪吃蛇.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="bgm.mp3" />
+    <Media Include="cxk.MP3" />
+    <Media Include="wjz.MP3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="head.png">
       <Filter>资源文件</Filter>
     </Image>
-    <Image Include="head.png">
+    <Image Include="ground.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="ground2.jpeg">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

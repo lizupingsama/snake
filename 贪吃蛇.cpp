@@ -22,6 +22,8 @@
 #define DownWall 500
 int food_x;
 int food_y;
+int score,MaxScore;
+FILE *fp;
 enum direction
 {
 	UP,DOWN,LEFT,RIGHT
@@ -64,13 +66,18 @@ void music()
 
 void GameDraw()
 {
+	char c[4];
+	sprintf(c, "%d", score);
 	BeginBatchDraw();//双缓冲防止闪屏
 	FlushBatchDraw();
-	IMAGE img,img2;
+	IMAGE img,img2;//图片加载
 	loadimage(&img, "head.png", 10, 10);
 	loadimage(&img2, "ground2.jpeg", 700, 500);
 	cleardevice();
+	settextcolor(RGB(163, 202, 88));//文字颜色
+	settextstyle(20, 9, "楷体");
 	putimage(0, 0, &img2);
+    outtextxy(650, 30, c);//输出分数
 	{
 		setfillcolor(RGB(255, 63, 63));
 		fillrectangle(0, 0, 700, 5);//绘制顶墙
@@ -116,6 +123,13 @@ void SnakeMove()//蛇的移动
 		break;
 	}
 
+	if (snake.coor[0].x == food_x && snake.coor[0].y == food_y)//判断吃到食物
+	{
+			snake.size++;
+			score += 10;
+			food();
+	}
+
 	if (snake.coor[0].x < LeftWall+10 || snake.coor[0].x > RightWall-10 || snake.coor[0].y < UpWall+10 || snake.coor[0].y > DownWall-10)
 		//判断是否撞墙
 	{
@@ -123,16 +137,44 @@ void SnakeMove()//蛇的移动
 		mciSendString("close cxk", NULL, 0, NULL);
 		mciSendString("open cxk.MP3 alias cxk", NULL, 0, NULL);
 		mciSendString("play cxk", NULL, 0, NULL);
-		printf("游戏结束");
-		_getch();
+		
+		fp = fopen("score.txt", "r");
+		fscanf(fp, "%d", &MaxScore);
+		fclose(fp);
+
+		char c1[30] = "最高分为：";
+		char c2[30] = "恭喜你，新纪录：";
+		if (score <= MaxScore)
+		{
+			char c3[20];
+			sprintf(c3, "%d", MaxScore);
+			strcat(c1, c3);
+			strcat(c1, "分");
+			outtextxy(320, 220, "游戏结束");
+			outtextxy(290, 245, c1);
+			outtextxy(270, 270, "按回车键重新开始游戏");
+		}
+		else
+		{
+		    char c3[20];
+			sprintf(c3, "%d", score);
+			strcat(c2, c3);
+			strcat(c2, "分");
+			outtextxy(320, 220, "游戏结束");
+			outtextxy(270, 245, c2);
+			outtextxy(270, 270, "按回车键重新开始游戏");
+			fp = fopen("score.txt", "w");
+			fprintf(fp, "%d", score);
+			fclose(fp);
+		}
+		int choose=0;
+		while (choose != 13)
+		{
+			choose=_getch();
+		}
 		main();
 	}
-	if (snake.coor[0].x == food_x && snake.coor[0].y == food_y)//判断吃到食物
-	{
-		snake.size++;
-		music();
-		food();
-	}
+	
 	for (int i = 1; i < snake.size; i++)//判断是否吃到自己
 	{
 		if (snake.coor[0].x == snake.coor[i].x && snake.coor[0].y == snake.coor[i].y)
@@ -141,8 +183,40 @@ void SnakeMove()//蛇的移动
 			mciSendString("close cxk", NULL, 0, NULL);
 			mciSendString("open cxk.MP3 alias cxk", NULL, 0, NULL);
 			mciSendString("play cxk", NULL, 0, NULL);
-			printf("游戏结束");
-			_getch();
+			fp = fopen("score.txt", "r");
+			fscanf(fp, "%d", &MaxScore);
+			fclose(fp);
+
+			char c1[30] = "最高分为：";
+			char c2[30] = "恭喜你，新纪录：";
+			if (score <= MaxScore)
+			{
+				char c3[20];
+				sprintf(c3, "%d", MaxScore);
+				strcat(c1, c3);
+				strcat(c1, "分");
+				outtextxy(320, 220, "游戏结束");
+				outtextxy(290, 245, c1);
+				outtextxy(270, 270, "按回车键重新开始游戏");
+			}
+			else
+			{
+				char c3[20];
+				sprintf(c3, "%d", score);
+				strcat(c2, c3);
+				strcat(c2, "分");
+				outtextxy(320, 220, "游戏结束");
+				outtextxy(270, 245, c2);
+				outtextxy(270, 270, "按回车键重新开始游戏");
+				fp = fopen("score.txt", "w");
+				fprintf(fp, "%d", score);
+				fclose(fp);
+			}
+			int choose = 0;
+			while (choose != 13)
+			{
+				choose = _getch();
+			}
 			main();
 		}
 	}
@@ -193,9 +267,28 @@ void food()
 int main()
 {
 	GameInit();
+	if ((fp = fopen("Score.txt", "r")) == NULL)
+	{
+		fp = fopen("Score.txt", "w");
+		MaxScore = 0;
+		fclose(fp);
+	}
+	else
+	{
+		fscanf(fp, "%d", &MaxScore);
+		fclose(fp);
+	}
+	score = 0;
 	food();
 	GameDraw(); 
-	printf("按任意键开始\n");
+	outtextxy(285, 220, "按任意键开始游戏");
+	char c1[30] = "当前记录：";
+	char c3[20];
+	sprintf(c3, "%d", MaxScore);
+	strcat(c1, c3);
+	strcat(c1, "分");
+	outtextxy(290, 245, c1);
+
 	_getch();
 	mciSendString("close bgm", NULL, 0, NULL);
 	mciSendString("open bgm.MP3 alias bgm", NULL, 0, NULL);

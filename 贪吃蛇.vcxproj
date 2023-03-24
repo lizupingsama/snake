@@ -131,11 +131,18 @@
     <ClCompile Include="贪吃蛇.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="贪吃蛇.rc" />
+  </ItemGroup>
+  <ItemGroup>
     <Media Include="bgm.mp3" />
     <Media Include="cxk.MP3" />
     <Media Include="wjz.MP3" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="ground.jpg" />
     <Image Include="ground2.jpeg" />
     <Image Include="head.png" />
   </ItemGroup>
