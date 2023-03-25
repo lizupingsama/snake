@@ -127,6 +127,7 @@ void SnakeMove()//ÉßµÄÒÆ¶¯
 	{
 			snake.size++;
 			score += 10;
+			music();
 			food();
 	}
 
