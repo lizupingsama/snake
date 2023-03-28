@@ -137,14 +137,15 @@
     <ResourceCompile Include="贪吃蛇.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="bgm.mp3" />
-    <Media Include="cxk.MP3" />
-    <Media Include="wjz.MP3" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="ground.jpg" />
+    <Image Include="C:\Users\李润丰\Pictures\Saved Pictures\head4.png" />
+    <Image Include="C:\Users\李润丰\Pictures\Screenshots\head.png" />
+    <Image Include="C:\Users\李润丰\Pictures\Screenshots\head1.png" />
+    <Image Include="C:\Users\李润丰\Pictures\Screenshots\head2.png" />
     <Image Include="ground2.jpeg" />
     <Image Include="head.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="bgm.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

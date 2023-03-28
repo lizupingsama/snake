@@ -23,6 +23,7 @@
 int food_x;
 int food_y;
 int score,MaxScore;
+float ScoreCounter;//改变速度用
 FILE *fp;
 enum direction
 {
@@ -49,7 +50,8 @@ void GameInit()//游戏初始化
 	initgraph(RightWall,DownWall);//初始化窗口
 	snake.size = 3;//蛇的初始化长度
 	snake.direction = RIGHT;
-	snake.speed = 10;
+	snake.speed = 125;
+	ScoreCounter = 0;
 	for (int i = 0; i <= snake.size; i++)
 	{
 		snake.coor[i].x = 40-10*i;
@@ -70,9 +72,10 @@ void GameDraw()
 	sprintf(c, "%d", score);
 	BeginBatchDraw();//双缓冲防止闪屏
 	FlushBatchDraw();
-	IMAGE img,img2;//图片加载
-	loadimage(&img, "head.png", 10, 10);
-	loadimage(&img2, "ground2.jpeg", 700, 500);
+	IMAGE img,img2,img3;//图片加载
+	//loadimage(&img, _T("IMAGE"), _T("head1"), 15, 15);
+	loadimage(&img3, _T("IMAGE"), _T("head"), 15, 15);
+	loadimage(&img2, _T("IMAGE"), _T("background"),700,500);
 	cleardevice();
 	settextcolor(RGB(163, 202, 88));//文字颜色
 	settextstyle(20, 9, "楷体");
@@ -89,7 +92,10 @@ void GameDraw()
 	for (int i = 0; i < snake.size; i++)//绘制蛇
 	{
 		if (i == 0)
-			putimage(snake.coor[i].x-5, snake.coor[i].y-5,&img);
+		{
+			//putimage(snake.coor[i].x - 8, snake.coor[i].y - 8, &img);
+			putimage(snake.coor[i].x - 8, snake.coor[i].y - 8, &img3);
+		}
 		else
 		{
 			setfillcolor(RGB(1 + rand() % 300, 1 + rand() % 300, 1 + rand() % 300));
@@ -100,7 +106,12 @@ void GameDraw()
 		solidcircle(food_x, food_y, 5);
 	
 	EndBatchDraw();
-	Sleep(125);
+	if (ScoreCounter == 100)//每得到100分加速1.25倍
+	{
+		snake.speed *= 0.85;
+		ScoreCounter = 0;
+	}
+	Sleep(snake.speed);
 }
 
 void SnakeMove()//蛇的移动
@@ -113,13 +124,13 @@ void SnakeMove()//蛇的移动
 	
 	switch (snake.direction)
 	{
-	case UP:snake.coor[0].y-= snake.speed;
+	case UP:snake.coor[0].y-= 10;
 		break;
-	case DOWN:snake.coor[0].y+= snake.speed;
+	case DOWN:snake.coor[0].y += 10;
 		break;
-	case LEFT:snake.coor[0].x-= snake.speed;
+	case LEFT:snake.coor[0].x-= 10;
 		break;
-	case RIGHT:snake.coor[0].x+= snake.speed;
+	case RIGHT:snake.coor[0].x+= 10;
 		break;
 	}
 
@@ -127,6 +138,7 @@ void SnakeMove()//蛇的移动
 	{
 			snake.size++;
 			score += 10;
+			ScoreCounter += 10;
 			music();
 			food();
 	}
@@ -145,15 +157,21 @@ void SnakeMove()//蛇的移动
 
 		char c1[30] = "最高分为：";
 		char c2[30] = "恭喜你，新纪录：";
+		char c4[30] = "你的得分为：";
 		if (score <= MaxScore)
 		{
 			char c3[20];
+			char c5[20];
+			sprintf(c5, "%d", score);
 			sprintf(c3, "%d", MaxScore);
 			strcat(c1, c3);
 			strcat(c1, "分");
+			strcat(c4, c5);
+			strcat(c4, "分");
 			outtextxy(320, 220, "游戏结束");
-			outtextxy(290, 245, c1);
-			outtextxy(270, 270, "按回车键重新开始游戏");
+			outtextxy(290, 245, c4);
+			outtextxy(290, 270, c1);
+			outtextxy(270, 295, "按回车键重新开始游戏");
 		}
 		else
 		{
@@ -190,15 +208,21 @@ void SnakeMove()//蛇的移动
 
 			char c1[30] = "最高分为：";
 			char c2[30] = "恭喜你，新纪录：";
+			char c4[30] = "你的得分为：";
 			if (score <= MaxScore)
 			{
 				char c3[20];
+				char c5[20];
+				sprintf(c5, "%d", score);
 				sprintf(c3, "%d", MaxScore);
 				strcat(c1, c3);
 				strcat(c1, "分");
+				strcat(c4, c5);
+				strcat(c4, "分");
 				outtextxy(320, 220, "游戏结束");
-				outtextxy(290, 245, c1);
-				outtextxy(270, 270, "按回车键重新开始游戏");
+				outtextxy(290, 245, c4);
+				outtextxy(290, 270, c1);
+				outtextxy(270, 295, "按回车键重新开始游戏");
 			}
 			else
 			{
@@ -260,7 +284,7 @@ void KeyControl()
 
 void food()
 {
-	srand((unsigned)time(NULL));
+	 srand((unsigned)time(NULL));
 	 food_x = (1 + rand() % 69) * 10;
 	 food_y = (1 + rand() % 49) * 10;
 }
@@ -291,9 +315,13 @@ int main()
 	outtextxy(290, 245, c1);
 
 	_getch();
-	mciSendString("close bgm", NULL, 0, NULL);
-	mciSendString("open bgm.MP3 alias bgm", NULL, 0, NULL);
+	mciSendString("close bgm repeat", NULL, 0, NULL);
+	mciSendString("open bgm.mp3 alias bgm", 0, NULL, 0);
 	mciSendString("play bgm repeat", NULL, 0, NULL);
+
+	// 关闭音乐播放器并删除临时文件
+	
+
 	while (1)
 	{
 		SnakeMove();

@@ -30,19 +30,26 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Media Include="bgm.mp3" />
-    <Media Include="cxk.MP3" />
-    <Media Include="wjz.MP3" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="head.png">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="ground.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="ground2.jpeg">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="head.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="C:\Users\李润丰\Pictures\Screenshots\head1.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="C:\Users\李润丰\Pictures\Screenshots\head2.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="C:\Users\李润丰\Pictures\Screenshots\head.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="C:\Users\李润丰\Pictures\Saved Pictures\head4.png">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="bgm.mp3" />
   </ItemGroup>
 </Project>
