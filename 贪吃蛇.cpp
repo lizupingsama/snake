@@ -23,7 +23,7 @@
 int food_x;
 int food_y;
 int score,MaxScore;
-float ScoreCounter;//改变速度用
+float ScoreCounter;//积分器，改变速度用
 FILE *fp;
 enum direction
 {
@@ -45,6 +45,7 @@ struct Snake
 
 int main();
 void food();
+
 void GameInit()//游戏初始化
 {
 	initgraph(RightWall,DownWall);//初始化窗口
@@ -69,7 +70,7 @@ void music()
 void GameDraw()
 {
 	char c[4];
-	sprintf(c, "%d", score);
+	sprintf(c, "%d", score);//将分数转化为字符存储到数组c中
 	BeginBatchDraw();//双缓冲防止闪屏
 	FlushBatchDraw();
 	IMAGE img,img2,img3;//图片加载
@@ -82,23 +83,22 @@ void GameDraw()
 	putimage(0, 0, &img2);
     outtextxy(650, 30, c);//输出分数
 	{
-		setfillcolor(RGB(255, 63, 63));
+		setfillcolor(RGB(255, 63, 63));//墙的颜色
 		fillrectangle(0, 0, 700, 5);//绘制顶墙
 		fillrectangle(695, 0, 700, 500);//绘制右墙
 		fillrectangle(0, 495, 700, 500);//绘制底墙
 		fillrectangle(0, 0, 5, 500);//绘制左墙
 	}
-	setfillcolor(RGB(56, 23, 57));
+
 	for (int i = 0; i < snake.size; i++)//绘制蛇
 	{
 		if (i == 0)
 		{
-			//putimage(snake.coor[i].x - 8, snake.coor[i].y - 8, &img);
-			putimage(snake.coor[i].x - 8, snake.coor[i].y - 8, &img3);
+			putimage(snake.coor[i].x - 8, snake.coor[i].y - 8, &img3);//用鸡的图片来表示头部
 		}
 		else
 		{
-			setfillcolor(RGB(1 + rand() % 300, 1 + rand() % 300, 1 + rand() % 300));
+			setfillcolor(RGB(1 + rand() % 300, 1 + rand() % 300, 1 + rand() % 300));//随机生成蛇身的颜色
 			solidcircle(snake.coor[i].x, snake.coor[i].y, 5);
 		}
 	}
@@ -106,10 +106,10 @@ void GameDraw()
 		solidcircle(food_x, food_y, 5);
 	
 	EndBatchDraw();
-	if (ScoreCounter == 100)//每得到100分加速1.25倍
+	if (ScoreCounter == 100)//积分器每得到100分加速1.25倍
 	{
 		snake.speed *= 0.85;
-		ScoreCounter = 0;
+		ScoreCounter = 0;//清零积分器，重新开始积分
 	}
 	Sleep(snake.speed);
 }
@@ -152,9 +152,10 @@ void SnakeMove()//蛇的移动
 		mciSendString("play cxk", NULL, 0, NULL);
 		
 		fp = fopen("score.txt", "r");
-		fscanf(fp, "%d", &MaxScore);
+		fscanf(fp, "%d", &MaxScore);//记录最高分到文件中
 		fclose(fp);
 
+		//结束页面字符
 		char c1[30] = "最高分为：";
 		char c2[30] = "恭喜你，新纪录：";
 		char c4[30] = "你的得分为：";
@@ -282,11 +283,18 @@ void KeyControl()
 	}
 }
 
-void food()
+void food()//随机生成食物的坐标
 {
-	 srand((unsigned)time(NULL));
-	 food_x = (1 + rand() % 69) * 10;
-	 food_y = (1 + rand() % 49) * 10;
+	srand((unsigned)time(NULL));
+	food_x = (1 + rand() % 69) * 10;//X∈[10,690]
+	food_y = (1 + rand() % 49) * 10;//Y∈[10,490]
+}
+void button(int x, int y, TCHAR*text)
+{
+	int width = textwidth(text);
+	int hight = textheight(text);
+	fillrectangle(x, y, x + width + 2, y + hight + 2);
+	outtextxy(x + 1, y - 1, text);
 }
 
 int main()
@@ -306,21 +314,51 @@ int main()
 	score = 0;
 	food();
 	GameDraw(); 
-	outtextxy(285, 220, "按任意键开始游戏");
-	char c1[30] = "当前记录：";
-	char c3[20];
-	sprintf(c3, "%d", MaxScore);
-	strcat(c1, c3);
-	strcat(c1, "分");
-	outtextxy(290, 245, c1);
+	//开始界面文字
+	ExMessage m;//鼠标结构体变量
+	RECT r = { 310,230,380,270 };
+	int mouse = 1;
+	TCHAR text[30] = "开始游戏";
+	settextstyle(35, 13, text);
+	setbkmode(TRANSPARENT);
+		int width = textwidth(text);
+		int hight = textheight(text);
+	while (mouse)
+	{
+		settextcolor(RGB(255, 63, 63));
+		settextstyle(35, 13, text);
+		m = getmessage(EX_MOUSE);
+		
+		if (310 < m.x && m.x < 310 + width + 2 && 230 < m.y && m.y < 230 + hight + 2)
+		{
+		
+			setfillcolor(RGB(185, 228, 228));
+			button(310, 230, text);
+			m = getmessage(EX_MOUSE);
+			if (m.lbutton == true)
+				break;
 
-	_getch();
+		}
+		else
+		{
+			setfillcolor(RGB(105, 193, 193));
+			button(310, 230, text);
+		}
+			char c1[30] = "当前记录：";
+			char c3[20];
+			sprintf(c3, "%d", MaxScore);
+			strcat(c1, c3);
+			strcat(c1, "分");
+			settextstyle(24, 9, c1);
+			settextcolor(RGB(146, 228, 146));
+			outtextxy(300, 230 + hight + 20, c1);
+	}
+
+	
+
 	mciSendString("close bgm repeat", NULL, 0, NULL);
 	mciSendString("open bgm.mp3 alias bgm", 0, NULL, 0);
 	mciSendString("play bgm repeat", NULL, 0, NULL);
-
-	// 关闭音乐播放器并删除临时文件
-	
 
 	while (1)
 	{
