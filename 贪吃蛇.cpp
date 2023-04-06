@@ -24,13 +24,16 @@ int food_x;
 int food_y;
 int score,MaxScore;
 float ScoreCounter;//积分器，改变速度用
+int count;//记录升级加速的次数
+struct tm t1;
+time_t now1;
 FILE *fp;
 enum direction
 {
 	UP,DOWN,LEFT,RIGHT
 };
 
-struct Coor
+struct Coor//每节蛇的坐标
 {
 	float x;
 	float y;
@@ -74,13 +77,14 @@ void GameDraw()
 	BeginBatchDraw();//双缓冲防止闪屏
 	FlushBatchDraw();
 	IMAGE img,img2,img3;//图片加载
-	//loadimage(&img, _T("IMAGE"), _T("head1"), 15, 15);
-	loadimage(&img3, _T("IMAGE"), _T("head"), 15, 15);
+	loadimage(&img, _T("IMAGE"), _T("head1"), 15, 15);
+	loadimage(&img3, _T("IMAGE"), _T("head2"), 15, 15);
 	loadimage(&img2, _T("IMAGE"), _T("background"),700,500);
-	cleardevice();
 	settextcolor(RGB(163, 202, 88));//文字颜色
 	settextstyle(20, 9, "楷体");
-	putimage(0, 0, &img2);
+
+	cleardevice();
+	putimage(0, 0, &img2);//背景图片
     outtextxy(650, 30, c);//输出分数
 	{
 		setfillcolor(RGB(255, 63, 63));//墙的颜色
@@ -94,7 +98,8 @@ void GameDraw()
 	{
 		if (i == 0)
 		{
-			putimage(snake.coor[i].x - 8, snake.coor[i].y - 8, &img3);//用鸡的图片来表示头部
+			putimage(snake.coor[i].x - 8, snake.coor[i].y - 8, 15, 15, &img, 0, 0, SRCAND);//用鸡的图片来表示头部
+			putimage(snake.coor[i].x - 8, snake.coor[i].y - 8, 15, 15, &img3, 0, 0, SRCPAINT);
 		}
 		else
 		{
@@ -103,19 +108,40 @@ void GameDraw()
 		}
 	}
 		setfillcolor(RGB(1+rand()%300, 1 + rand() % 300, 1 + rand() % 300));//食物的颜色
-		solidcircle(food_x, food_y, 5);
+		solidcircle(food_x, food_y, 5);//绘画食物
 	
-	EndBatchDraw();
-	if (ScoreCounter == 100)//积分器每得到100分加速1.25倍
+	if (ScoreCounter == 100)//积分器每得到100分,升级加速1.25倍
 	{
 		snake.speed *= 0.85;
 		ScoreCounter = 0;//清零积分器，重新开始积分
+		count++;
+		mciSendString("close level", NULL, 0, NULL);
+		mciSendString("open level.wav alias level", NULL, 0, NULL);
+		mciSendString("play level", NULL, 0, NULL);
+		time(&now1);
+		localtime_s(&t1, &now1);
 	}
-	Sleep(snake.speed);
+
+	struct tm t2;
+	time_t now2;
+	time(&now2);
+	localtime_s(&t2, &now2);
+	int before = t1.tm_min * 60 + t1.tm_sec;
+	int now = t2.tm_min * 60 + t2.tm_sec;
+	if (count > 0 && now - before <= 3)//若在59分时开始游戏可能会出现Level UP不消失的bug
+	{
+		outtextxy(330, 230, "Level UP");//升级文字
+		//printf("t1=%d\nt2=%d", before,now);
+	}
+		
+
+	EndBatchDraw();
+	Sleep(snake.speed);//延迟时间，控制蛇的速度
 }
 
 void SnakeMove()//蛇的移动
 {
+
 	for (int i = snake.size-1; i >0 ; i--)//身体跟着头移动
 	{
 		snake.coor[i].x = snake.coor[i - 1].x;
@@ -139,6 +165,7 @@ void SnakeMove()//蛇的移动
 			snake.size++;
 			score += 10;
 			ScoreCounter += 10;
+			if(ScoreCounter!=100)
 			music();
 			food();
 	}
@@ -289,12 +316,13 @@ void food()//随机生成食物的坐标
 	food_x = (1 + rand() % 69) * 10;//X∈[10,690]
 	food_y = (1 + rand() % 49) * 10;//Y∈[10,490]
 }
-void button(int x, int y, TCHAR*text)
+
+void button(int x, int y, TCHAR*text)//按钮绘画
 {
 	int width = textwidth(text);
 	int hight = textheight(text);
-	fillrectangle(x, y, x + width + 2, y + hight + 2);
-	outtextxy(x + 1, y - 1, text);
+	fillrectangle(x, y, x + width + 6, y + hight + 6);
+	outtextxy(x + 3, y + 3 , text);
 }
 
 int main()
@@ -312,12 +340,12 @@ int main()
 		fclose(fp);
 	}
 	score = 0;
+	count = 0;
 	food();
 	GameDraw(); 
-	//开始界面文字
+	//开始界面
 	ExMessage m;//鼠标结构体变量
-	RECT r = { 310,230,380,270 };
-	int mouse = 1;
+	bool mouse = true;
 	TCHAR text[30] = "开始游戏";
 	settextstyle(35, 13, text);
 	setbkmode(TRANSPARENT);
@@ -327,21 +355,19 @@ int main()
 	{
 		settextcolor(RGB(255, 63, 63));
 		settextstyle(35, 13, text);
-		m = getmessage(EX_MOUSE);
+		m = getmessage(EX_MOUSE);//获取鼠标状态给m
 		
-		if (310 < m.x && m.x < 310 + width + 2 && 230 < m.y && m.y < 230 + hight + 2)
+		if (310 < m.x && m.x < 310 + width + 6 && 230 < m.y && m.y < 230 + hight + 6)//判断鼠标是否在按钮内
 		{
-		
 			setfillcolor(RGB(185, 228, 228));
 			button(310, 230, text);
 			m = getmessage(EX_MOUSE);
-			if (m.lbutton == true)
-				break;
-
+			if (m.lbutton == true)//判断左键是否点击
+				mouse = false;
 		}
 		else
 		{
-			setfillcolor(RGB(105, 193, 193));
+			setfillcolor(RGB(105, 193, 193));//按钮互动变色效果
 			button(310, 230, text);
 		}
 			char c1[30] = "当前记录：";
@@ -354,10 +380,8 @@ int main()
 			outtextxy(300, 230 + hight + 20, c1);
 	}
 
-	
-
-	mciSendString("close bgm repeat", NULL, 0, NULL);
-	mciSendString("open bgm.mp3 alias bgm", 0, NULL, 0);
+	mciSendString("close bgm", NULL, 0, NULL);
+	mciSendString("open bgm.mp3 alias bgm", 0, NULL, 0);//BGM播放
 	mciSendString("play bgm repeat", NULL, 0, NULL);
 
 	while (1)
